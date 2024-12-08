@@ -90,6 +90,7 @@ Please wait for confirmation.`;
             speed={40}
             className="text-green-500 mt-4"
             cursor={false}
+            omitDeletionAnimation={true}
           />
           {animationComplete && !walletConnected && (
             <Button

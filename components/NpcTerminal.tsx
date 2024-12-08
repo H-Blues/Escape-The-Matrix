@@ -18,7 +18,8 @@ interface NpcTerminalProps {
 
 export const NpcTerminal: React.FC<NpcTerminalProps> = ({ title, description, messages, onMessage, variant }) => {
   const [input, setInput] = useState("");
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const colorClasses = {
     smith: {
@@ -34,7 +35,10 @@ export const NpcTerminal: React.FC<NpcTerminalProps> = ({ title, description, me
   }[variant];
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (scrollContainerRef.current) {
+      const scrollContainer = scrollContainerRef.current;
+      scrollContainer.scrollTop = scrollContainer.scrollHeight;
+    }
   }, [messages]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -45,36 +49,38 @@ export const NpcTerminal: React.FC<NpcTerminalProps> = ({ title, description, me
   };
 
   return (
-    <div className={`h-full rounded-lg border ${colorClasses.border} flex flex-col bg-opacity-5`}>
-      <div className={`p-2 border-b ${colorClasses.border} flex items-center`}>
+    <div className={`h-[600px] rounded-lg border ${colorClasses.border} flex flex-col overflow-hidden`}>
+      <div className={`p-2 border-b ${colorClasses.border} flex items-center shrink-0`}>
         <Terminal className={`w-4 h-4 ${colorClasses.text}`} />
         <span className={`${colorClasses.text} ml-2 font-mono`}>{title}</span>
       </div>
 
-      <div className="flex-grow p-4 font-mono overflow-y-auto scrollbar-hide">
-        <div className="mb-4">
+      <div ref={scrollContainerRef} className="flex-1 p-4 font-mono overflow-y-auto scrollbar-hide">
+        <div className="mb-2">
           <pre className={`${colorClasses.textFaded} text-xs`}>{description}</pre>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-1">
           {messages.map((msg, idx) => (
             <div key={idx} className="opacity-90 hover:opacity-100">
-              <div className="flex items-center">
-                <span className={`${colorClasses.text} text-sm`}>{">>"} neo@matrix:~$</span>
-                <span className={`ml-2 ${colorClasses.textFaded} text-sm`}>{msg.text}</span>
+              <div className="flex items-center break-all">
+                <span className={`${colorClasses.text} text-sm shrink-0`}>{">>"} neo@matrix:~$</span>
+                <span className={`ml-2 ${colorClasses.textFaded} text-sm break-all`}>{msg.text}</span>
               </div>
               {msg.response && (
-                <pre className={`mt-1 pl-0 ${colorClasses.textFaded} text-sm whitespace-pre-wrap`}>{msg.response}</pre>
+                <pre className={`pl-0 ${colorClasses.textFaded} text-sm whitespace-pre-wrap break-all`}>
+                  {msg.response}
+                </pre>
               )}
             </div>
           ))}
-          <div ref={bottomRef} />
+          <div ref={messagesEndRef} />
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className={`p-4 border-t ${colorClasses.border}`}>
+      <form onSubmit={handleSubmit} className={`p-4 border-t ${colorClasses.border} shrink-0`}>
         <div className="flex items-center">
-          <span className={colorClasses.text}>neo@matrix:~$ </span>
+          <span className={`${colorClasses.text} shrink-0`}>neo@matrix:~$ </span>
           <input
             type="text"
             value={input}

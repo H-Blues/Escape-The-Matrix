@@ -20,9 +20,9 @@ Security: MAXIMUM
 
 export const INITIAL_SEQUENCE = [
   "Initializing neural interface...",
-  1000,
+  700,
   "Welcome to the Matrix.",
-  1000,
+  700,
   'Type "help" to see available commands.',
   500,
 ] as const;
