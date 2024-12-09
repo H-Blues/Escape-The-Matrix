@@ -1,6 +1,7 @@
 import { NPCData } from "@/types";
 
 export const smithData: NPCData = {
+  id: "smith",
   title: "Matrix Terminal (Smith)",
   description: `Agent Smith: Sentinel Program
 Status: Active
@@ -13,6 +14,7 @@ Access Level: Maximum`,
 };
 
 export const morpheusData: NPCData = {
+  id: "morpheus",
   title: "Matrix Terminal (Morpheus)",
   description: `Morpheus: Resistance Leader
 Status: Awakened

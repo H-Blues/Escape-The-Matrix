@@ -8,11 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useAppKit } from "@reown/appkit/react";
 import { useAppKitAccount } from "@reown/appkit/react";
 
-interface MainTerminalProps {
-  onMessage?: (message: string) => void;
-}
-
-export const MainTerminal: React.FC<MainTerminalProps> = ({ onMessage }) => {
+export const MainTerminal: React.FC = () => {
   const [input, setInput] = useState("");
   const [history, setHistory] = useState<Command[]>([]);
   const [animationComplete, setAnimationComplete] = useState(false);
@@ -24,15 +20,32 @@ export const MainTerminal: React.FC<MainTerminalProps> = ({ onMessage }) => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [history]);
 
-  const processCommand = (cmd: string): string => {
+  const processCommand = async (cmd: string): Promise<string> => {
     const [command, ...args] = cmd.toLowerCase().trim().split(" ");
+
+    if (!isConnected) return "Please connect wallet first";
 
     switch (command) {
       case "solve":
         if (!args.length) return "Usage: solve <answer>";
-        return `Processing solution: "${args.join(" ")}"...
-Verifying...
-Transaction required: 0.1 ETH`;
+        try {
+          const res = await fetch("/api/chat/oracle", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              message: cmd,
+              userAddress: address,
+            }),
+          });
+
+          const data = await res.json();
+          if (data.isCorrect) {
+            return `Answer verified!\nProcessing reward transaction...`;
+          }
+          return data.response || "Incorrect answer. Try again.";
+        } catch (error) {
+          return "Error processing solution.";
+        }
 
       case "verify":
         if (!args[0]) return "Usage: verify <transaction_hash>";
@@ -45,14 +58,13 @@ Please wait for confirmation.`;
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
 
-    const response = processCommand(input);
-    setHistory((prev) => [...prev, { command: input, response }]);
+    const response = await processCommand(input);
+    setHistory((prev) => [...prev, { command: input, response }] as Command[]);
     setInput("");
-    onMessage?.(input);
   };
 
   return (

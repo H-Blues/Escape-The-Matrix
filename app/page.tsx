@@ -1,13 +1,21 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { MainTerminal } from "@/components/MainTerminal";
-import { useNPCChat } from "@/hooks/useNPCChat";
 import { NpcTerminal } from "@/components/NpcTerminal";
 import { smithData, morpheusData } from "@/components/data/npcData";
+import { Message } from "@/types";
 
 export default function Home() {
-  const smith = useNPCChat(smithData);
-  const morpheus = useNPCChat(morpheusData);
+  const [smithMessages, setSmithMessages] = useState<Message[]>([]);
+  const [morpheusMessages, setMorpheusMessages] = useState<Message[]>([]);
+
+  const handleSmithMessage = (message: string, response: string) => {
+    setSmithMessages((prev) => [...prev, { text: message, response }]);
+  };
+
+  const handleMorpheusMessage = (message: string, response: string) => {
+    setMorpheusMessages((prev) => [...prev, { text: message, response }]);
+  };
 
   return (
     <main className="min-h-screen bg-black overflow-hidden relative p-4 h-screen">
@@ -19,11 +27,11 @@ export default function Home() {
           <MainTerminal />
         </div>
         <div className="w-[30%] flex flex-col gap-4">
-          <NpcTerminal {...smithData} messages={smith.messages} onMessage={smith.processMessage} variant="smith" />
+          <NpcTerminal {...smithData} messages={smithMessages} onMessage={handleSmithMessage} variant="smith" />
           <NpcTerminal
             {...morpheusData}
-            messages={morpheus.messages}
-            onMessage={morpheus.processMessage}
+            messages={morpheusMessages}
+            onMessage={handleMorpheusMessage}
             variant="morpheus"
           />
         </div>

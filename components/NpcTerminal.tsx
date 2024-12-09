@@ -2,24 +2,11 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Terminal } from "lucide-react";
 import { useAppKitAccount } from "@reown/appkit/react";
-
-interface Message {
-  text: string;
-  isNPC: boolean;
-  response?: string;
-}
-
-interface NpcTerminalProps {
-  title: string;
-  description: string;
-  messages: Message[];
-  onMessage: (message: string) => void;
-  variant: "smith" | "morpheus";
-}
+import { NpcTerminalProps } from "@/types";
 
 export const NpcTerminal: React.FC<NpcTerminalProps> = ({ title, description, messages, onMessage, variant }) => {
   const [input, setInput] = useState("");
-  const { isConnected } = useAppKitAccount();
+  const { isConnected, address } = useAppKitAccount();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -43,11 +30,34 @@ export const NpcTerminal: React.FC<NpcTerminalProps> = ({ title, description, me
     }
   }, [messages]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
-    onMessage(input);
-    setInput("");
+
+    try {
+      const userMessage = input;
+
+      const res = await fetch(`/api/chat/${variant}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: userMessage,
+          userAddress: address,
+        }),
+      });
+
+      if (!res.ok) {
+        onMessage(userMessage, "Error: Invalid input or request. Please try again.");
+        return;
+      }
+
+      const data = await res.json();
+      onMessage(userMessage, data.response);
+      setInput("");
+    } catch (error) {
+      onMessage(input, "Error: Unable to process request. Please try again later.");
+      console.error("Error:", error);
+    }
   };
 
   return (

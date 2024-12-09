@@ -1,6 +1,6 @@
 "use client";
 
-import { wagmiAdapter, projectId } from "@/config";
+import { wagmiAdapter, projectId } from "@/config/adapter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createAppKit } from "@reown/appkit/react";
 import { mainnet, sepolia } from "@reown/appkit/networks";

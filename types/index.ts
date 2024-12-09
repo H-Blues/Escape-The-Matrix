@@ -24,7 +24,29 @@ export interface GameStats {
 }
 
 export interface NPCData {
+  id: string;
   title: string;
   description: string;
   responses: Record<string, string>;
+}
+
+export interface NPCMessage {
+  npcId: string;
+  userAddress: string;
+  message: string;
+  timestamp: number;
+  cost: string;
+}
+
+export interface Message {
+  text: string;
+  response?: string;
+}
+
+export interface NpcTerminalProps {
+  title: string;
+  description: string;
+  messages: Message[];
+  onMessage: (message: string, response: string) => void;
+  variant: "smith" | "morpheus";
 }
