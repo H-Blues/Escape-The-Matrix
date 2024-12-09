@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import { Terminal } from "lucide-react";
+import { useAppKitAccount } from "@reown/appkit/react";
 
 interface Message {
   text: string;
@@ -18,6 +19,7 @@ interface NpcTerminalProps {
 
 export const NpcTerminal: React.FC<NpcTerminalProps> = ({ title, description, messages, onMessage, variant }) => {
   const [input, setInput] = useState("");
+  const { isConnected } = useAppKitAccount();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -78,19 +80,21 @@ export const NpcTerminal: React.FC<NpcTerminalProps> = ({ title, description, me
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className={`p-4 border-t ${colorClasses.border} shrink-0`}>
-        <div className="flex items-center">
-          <span className={`${colorClasses.text} shrink-0`}>neo@matrix:~$ </span>
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            className={`flex-1 bg-transparent ${colorClasses.text} outline-none ml-2 font-mono`}
-            spellCheck="false"
-            autoComplete="off"
-          />
-        </div>
-      </form>
+      {isConnected && (
+        <form onSubmit={handleSubmit} className={`p-4 border-t ${colorClasses.border} shrink-0`}>
+          <div className="flex items-center">
+            <span className={`${colorClasses.text} shrink-0`}>neo@matrix:~$ </span>
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              className={`flex-1 bg-transparent ${colorClasses.text} outline-none ml-2 font-mono`}
+              spellCheck="false"
+              autoComplete="off"
+            />
+          </div>
+        </form>
+      )}
     </div>
   );
 };
