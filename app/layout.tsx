@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { Inter } from "next/font/google";
+const inter = Inter({ subsets: ["latin"] });
+
+import { headers } from "next/headers";
+import ContextProvider from "@/context";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -18,14 +23,19 @@ export const metadata: Metadata = {
   description: "AI Agent Game built on the Neo",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headers_data = await headers();
+  const cookies = headers_data.get("cookie");
+
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
+      <body className={inter.className}>
+        <ContextProvider cookies={cookies}>{children}</ContextProvider>
+      </body>
     </html>
   );
 }

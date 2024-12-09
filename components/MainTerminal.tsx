@@ -5,6 +5,8 @@ import { TypeAnimation } from "react-type-animation";
 import { Command } from "@/types";
 import { ASCII_LOGO, SYSTEM_STATUS, INITIAL_SEQUENCE, COMMANDS } from "./data/terminalConstants";
 import { Button } from "@/components/ui/button";
+import { useAppKit } from "@reown/appkit/react";
+import { useAppKitAccount } from "@reown/appkit/react";
 
 interface MainTerminalProps {
   onMessage?: (message: string) => void;
@@ -13,9 +15,9 @@ interface MainTerminalProps {
 export const MainTerminal: React.FC<MainTerminalProps> = ({ onMessage }) => {
   const [input, setInput] = useState("");
   const [history, setHistory] = useState<Command[]>([]);
-  const [walletConnected, setWalletConnected] = useState(false);
-  const [walletAddress, setWalletAddress] = useState("");
   const [animationComplete, setAnimationComplete] = useState(false);
+  const appKit = useAppKit();
+  const { isConnected, address } = useAppKitAccount();
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -43,12 +45,6 @@ Please wait for confirmation.`;
     }
   };
 
-  const handleDisconnect = () => {
-    setWalletConnected(false);
-    setWalletAddress("");
-    setHistory([]);
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
@@ -59,23 +55,19 @@ Please wait for confirmation.`;
     onMessage?.(input);
   };
 
-  const handleConnect = () => {
-    const address = `0x${Math.random().toString(16).slice(2, 6)}...${Math.random().toString(16).slice(2, 5)}`;
-    setWalletConnected(true);
-    setWalletAddress(address);
-  };
-
   return (
     <div className="h-full rounded-lg border border-green-500/30 flex flex-col bg-opacity-5">
       <div className="p-2 border-b border-green-500/30 flex items-center">
         <Terminal className="w-4 h-4 text-green-500" />
         <span className="text-green-500 ml-2 font-mono">Matrix Terminal (Oracle)</span>
-        {walletConnected && (
+        {isConnected && address && (
           <span
-            onClick={handleDisconnect}
             className="ml-auto text-green-500/70 text-xs font-mono cursor-pointer hover:text-green-500"
+            onClick={() => {
+              appKit.open();
+            }}
           >
-            {walletAddress}
+            {`${address.slice(0, 6)}...${address.slice(-4)}`}
           </span>
         )}
       </div>
@@ -92,10 +84,11 @@ Please wait for confirmation.`;
             cursor={false}
             omitDeletionAnimation={true}
           />
-          {animationComplete && !walletConnected && (
+          {animationComplete && !isConnected && (
             <Button
-              onClick={handleConnect}
-              className="mt-6 bg-green-500/20 text-green-500 border border-green-500/50 hover:bg-green-500/30"
+              onClick={() => appKit.open()}
+              className="mt-6 px-4 py-2 bg-green-500/20 text-green-500 border border-green-500/50 
+                        hover:bg-green-500/30 rounded-md font-mono transition-colors"
             >
               Connect Wallet
             </Button>
@@ -116,7 +109,7 @@ Please wait for confirmation.`;
         </div>
       </div>
 
-      {walletConnected && (
+      {isConnected && (
         <form onSubmit={handleSubmit} className="p-4 border-t border-green-500/30">
           <div className="flex items-center">
             <span className="text-green-500">neo@matrix:~$ </span>
