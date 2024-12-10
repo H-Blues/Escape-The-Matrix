@@ -1,22 +1,10 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import { MainTerminal } from "@/components/MainTerminal";
 import { NpcTerminal } from "@/components/NpcTerminal";
 import { smithData, morpheusData } from "@/components/data/npcData";
-import { Message } from "@/types";
 
 export default function Home() {
-  const [smithMessages, setSmithMessages] = useState<Message[]>([]);
-  const [morpheusMessages, setMorpheusMessages] = useState<Message[]>([]);
-
-  const handleSmithMessage = (message: string, response: string) => {
-    setSmithMessages((prev) => [...prev, { text: message, response }]);
-  };
-
-  const handleMorpheusMessage = (message: string, response: string) => {
-    setMorpheusMessages((prev) => [...prev, { text: message, response }]);
-  };
-
   return (
     <main className="min-h-screen bg-black overflow-hidden relative p-4 h-screen">
       <div className="absolute inset-0 bg-[url('/neo-bg.png')] bg-cover bg-center opacity-20" />
@@ -27,13 +15,8 @@ export default function Home() {
           <MainTerminal />
         </div>
         <div className="w-[30%] flex flex-col gap-4">
-          <NpcTerminal {...smithData} messages={smithMessages} onMessage={handleSmithMessage} variant="smith" />
-          <NpcTerminal
-            {...morpheusData}
-            messages={morpheusMessages}
-            onMessage={handleMorpheusMessage}
-            variant="morpheus"
-          />
+          <NpcTerminal {...smithData} variant="smith" />
+          <NpcTerminal {...morpheusData} variant="morpheus" />
         </div>
       </div>
     </main>

@@ -2,9 +2,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Terminal } from "lucide-react";
 import { useAppKitAccount } from "@reown/appkit/react";
-import { NpcTerminalProps } from "@/types";
+import { Message, NpcTerminalProps } from "@/types";
 
-export const NpcTerminal: React.FC<NpcTerminalProps> = ({ title, description, messages, onMessage, variant }) => {
+export const NpcTerminal: React.FC<NpcTerminalProps> = ({ title, description, variant }) => {
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const { isConnected, address } = useAppKitAccount();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -47,15 +48,34 @@ export const NpcTerminal: React.FC<NpcTerminalProps> = ({ title, description, me
       });
 
       if (!res.ok) {
-        onMessage(userMessage, "Error: Invalid input or request. Please try again.");
+        setMessages((prev) => [
+          ...prev,
+          {
+            text: userMessage,
+            response: "Error: Invalid input. Please try again.",
+          },
+        ]);
+        setInput("");
         return;
       }
 
       const data = await res.json();
-      onMessage(userMessage, data.response);
+      setMessages((prev) => [
+        ...prev,
+        {
+          text: userMessage,
+          response: data.response,
+        },
+      ]);
       setInput("");
     } catch (error) {
-      onMessage(input, "Error: Unable to process request. Please try again later.");
+      setMessages((prev) => [
+        ...prev,
+        {
+          text: input,
+          response: "Error: Unable to process request. Please try again later.",
+        },
+      ]);
       console.error("Error:", error);
     }
   };

@@ -46,7 +46,5 @@ export interface Message {
 export interface NpcTerminalProps {
   title: string;
   description: string;
-  messages: Message[];
-  onMessage: (message: string, response: string) => void;
   variant: "smith" | "morpheus";
 }
